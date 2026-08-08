@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  password    String
+  role        UserRole @default(CUSTOMER)
+  isDeleted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders       Order[]
+  cartItems    CartItem[]
+  reviews      Review[]
+  @@index([role])
+  @@map("users")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  isDeleted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  products    Product[]
+  @@map("categories")
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  price         Float
+  stock         Int
+  image         String?
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+  isDeleted     Boolean @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+  @@index([categoryId])
+  @@map("products")
+}
+
+model CartItem {
+  id          String   @id @default(uuid())
+  userId      String
+  productId   String
+  quantity    Int      @default(1)
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@unique([userId, productId])
+  @@index([productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  userId        String
+  totalAmount   Float
+  status        OrderStatus @default(PENDING)
+  isDeleted     Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          User        @relation(fields: [userId], references: [id])
+  orderItems    OrderItem[]
+  @@index([userId])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  price       Float
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product @relation(fields: [productId], references: [id])
+  createdAt    DateTime @default(now())
+  @@unique([orderId, productId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  rating      Int
+  comment     String?
+  status      ReviewStatus @default(PENDING)
+  userId      String
+  productId   String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  isDeleted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@unique([userId, productId])
+  @@index([productId])
+  @@map("reviews")
+}
