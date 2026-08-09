@@ -17,6 +17,17 @@ enum UserRole {
   CUSTOMER
 }
 
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+}
+
+enum CategoryStatus {
+  ACTIVE
+  INACTIVE
+}
+
 enum OrderStatus {
   PENDING
   PROCESSING
@@ -48,31 +59,35 @@ model User {
 }
 
 model Category {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  isDeleted   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          String         @id @default(uuid())
+  name        String         @unique
+  status      CategoryStatus @default(ACTIVE)
+  isDeleted   Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   products    Product[]
+  @@index([status])
   @@map("categories")
 }
 
 model Product {
-  id            String   @id @default(uuid())
+  id            String        @id @default(uuid())
   title         String
   description   String?
   price         Float
   stock         Int
   image         String?
+  status        ProductStatus @default(ACTIVE)
   categoryId    String
-  category      Category @relation(fields: [categoryId], references: [id])
-  isDeleted     Boolean @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  category      Category      @relation(fields: [categoryId], references: [id])
+  isDeleted     Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   cartItems     CartItem[]
   orderItems    OrderItem[]
   reviews       Review[]
   @@index([categoryId])
+  @@index([status])
   @@map("products")
 }
 

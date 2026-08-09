@@ -316,6 +316,7 @@ Creates a new product.
   "price": 999.99,
   "stock": 50,
   "image": "https://example.com/laptop.jpg",
+  "status": "ACTIVE",
   "categoryId": "category-uuid"
 }
 ```
@@ -332,6 +333,7 @@ Creates a new product.
     "price": 999.99,
     "stock": 50,
     "image": "https://example.com/laptop.jpg",
+    "status": "ACTIVE",
     "categoryId": "category-uuid",
     "category": { ... },
     "createdAt": "2024-01-15T10:30:00Z",
@@ -347,6 +349,7 @@ Retrieves products with filtering, sorting, and pagination.
 
 **Query Parameters:**
 - `categoryId` (string): Filter by category
+- `status` (string): Filter by status - 'ACTIVE', 'INACTIVE', 'OUT_OF_STOCK'
 - `search` (string): Search by title or description
 - `page` (number): Page number (default: 1)
 - `limit` (number): Items per page (default: 10, max: 100)
@@ -354,7 +357,7 @@ Retrieves products with filtering, sorting, and pagination.
 - `order` (string): 'asc' or 'desc' (default: desc)
 - `includeDeleted` (boolean): Include deleted products
 
-**Example:** `/products?categoryId=cat-123&search=laptop&page=1&limit=10&sortBy=price&order=asc`
+**Example:** `/products?categoryId=cat-123&status=ACTIVE&search=laptop&page=1&limit=10&sortBy=price&order=asc`
 
 **Response (200):**
 ```json
@@ -414,7 +417,8 @@ Updates product information.
 {
   "title": "Updated Laptop",
   "price": 1099.99,
-  "stock": 45
+  "stock": 45,
+  "status": "INACTIVE"
 }
 ```
 
@@ -464,7 +468,8 @@ Creates a new product category.
 **Request Body:**
 ```json
 {
-  "name": "Electronics"
+  "name": "Electronics",
+  "status": "ACTIVE"
 }
 ```
 
@@ -476,6 +481,7 @@ Creates a new product category.
   "data": {
     "id": "uuid",
     "name": "Electronics",
+    "status": "ACTIVE",
     "createdAt": "2024-01-15T10:30:00Z",
     "updatedAt": "2024-01-15T10:30:00Z"
   }
@@ -490,6 +496,7 @@ Retrieves all categories with optional products.
 **Query Parameters:**
 - `includeProducts` (boolean): Include products in each category (default: false)
 - `includeDeleted` (boolean): Include deleted categories
+- `status` (string): Filter by status - 'ACTIVE', 'INACTIVE'
 
 **Response (200):**
 ```json
@@ -500,6 +507,7 @@ Retrieves all categories with optional products.
     {
       "id": "uuid",
       "name": "Electronics",
+      "status": "ACTIVE",
       "products": []
     }
   ]
@@ -539,7 +547,8 @@ Updates category information.
 **Request Body:**
 ```json
 {
-  "name": "Updated Category Name"
+  "name": "Updated Category Name",
+  "status": "INACTIVE"
 }
 ```
 
@@ -1121,10 +1130,12 @@ All endpoints return consistent error responses:
 ### Product
 - Belongs to a Category
 - Has quantity tracking (stock)
+- Statuses: ACTIVE, INACTIVE, OUT_OF_STOCK
 - Can appear in cart items, order items, and reviews
 
 ### Category
 - Contains multiple products
+- Statuses: ACTIVE, INACTIVE
 - Used for organizing products
 
 ### CartItem

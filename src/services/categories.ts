@@ -35,7 +35,7 @@ const router = Router();
 router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
   try {
     // Extract category data from request body
-    const { name } = req.body;
+    const { name, status } = req.body;
 
     // Validate required fields
     if (!name || name.trim().length === 0) {
@@ -45,10 +45,19 @@ router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Res
       });
     }
 
+    // Validate category status if provided
+    if (status && !["ACTIVE", "INACTIVE"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be one of: ACTIVE, INACTIVE",
+      });
+    }
+
     // Create category in database using Prisma
     const newCategory = await prisma.category.create({
       data: {
         name: name.trim(),
+        status,
       },
     });
 
@@ -91,10 +100,22 @@ router.get("/", async (req: Request, res: Response) => {
     // Extract query parameters
     const includeDeleted = req.query.includeDeleted === "true";
     const includeProducts = req.query.includeProducts === "true";
+    const status = req.query.status as "ACTIVE" | "INACTIVE" | undefined;
+
+    // Validate status filter value
+    if (status && !["ACTIVE", "INACTIVE"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be one of: ACTIVE, INACTIVE",
+      });
+    }
 
     // Fetch all categories from database
     const categories = await prisma.category.findMany({
-      where: includeDeleted ? {} : { isDeleted: false },
+      where: {
+        ...(includeDeleted ? {} : { isDeleted: false }),
+        ...(status ? { status } : {}),
+      },
       include: {
         // Conditionally include products based on query parameter
         products: includeProducts
@@ -212,13 +233,21 @@ router.patch("/:id", authenticate, authorize("ADMIN"), async (req: Request, res:
     // Extract category ID from URL parameters and cast to string
     const id = req.params.id as string;
     // Extract update data from request body
-    const { name } = req.body;
+    const { name, status } = req.body;
 
     // Validate that name is provided and not empty
     if (name !== undefined && name.trim().length === 0) {
       return res.status(400).json({
         success: false,
         message: "Category name cannot be empty",
+      });
+    }
+
+    // Validate category status if provided
+    if (status !== undefined && !["ACTIVE", "INACTIVE"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be one of: ACTIVE, INACTIVE",
       });
     }
 
@@ -239,7 +268,10 @@ router.patch("/:id", authenticate, authorize("ADMIN"), async (req: Request, res:
     // Update category in database
     const updatedCategory = await prisma.category.update({
       where: { id },
-      data: name ? { name: name.trim() } : {},
+      data: {
+        ...(name ? { name: name.trim() } : {}),
+        ...(status ? { status } : {}),
+      },
     });
 
     // Return success response with updated category

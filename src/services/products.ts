@@ -39,13 +39,21 @@ const router = Router();
 router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
   try {
     // Extract product data from request body
-    const { title, description, price, stock, image, categoryId } = req.body;
+    const { title, description, price, stock, image, status, categoryId } = req.body;
 
     // Validate required fields
     if (!title || !price || !stock || !categoryId) {
       return res.status(400).json({
         success: false,
         message: "Title, price, stock, and categoryId are required",
+      });
+    }
+
+    // Validate product status if provided
+    if (status && !["ACTIVE", "INACTIVE", "OUT_OF_STOCK"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be one of: ACTIVE, INACTIVE, OUT_OF_STOCK",
       });
     }
 
@@ -77,6 +85,7 @@ router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Res
         price,
         stock,
         image,
+        status,
         categoryId,
       },
       include: {
@@ -106,6 +115,7 @@ router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Res
  * 
  * Query Parameters:
  * - categoryId: Filter by category (optional)
+ * - status: Filter by status - 'ACTIVE', 'INACTIVE', 'OUT_OF_STOCK' (optional)
  * - search: Search by title or description (optional)
  * - page: Page number for pagination (default: 1)
  * - limit: Items per page (default: 10)
@@ -120,8 +130,17 @@ router.get("/", async (req: Request, res: Response) => {
     // Extract query parameters with default values
     const categoryId = req.query.categoryId as string | undefined;
     const search = req.query.search as string | undefined;
+    const status = req.query.status as string | undefined;
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, parseInt(req.query.limit as string) || 10); // Max 100 items per page
+
+    // Validate status filter value
+    if (status && !["ACTIVE", "INACTIVE", "OUT_OF_STOCK"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be one of: ACTIVE, INACTIVE, OUT_OF_STOCK",
+      });
+    }
 
     // Only allow sorting by known safe fields
     const sortableFields = ["title", "price", "stock", "createdAt", "updatedAt"];
@@ -150,6 +169,11 @@ router.get("/", async (req: Request, res: Response) => {
     // Add category filter if provided
     if (categoryId) {
       whereCondition.categoryId = categoryId;
+    }
+
+    // Add status filter if provided
+    if (status) {
+      whereCondition.status = status;
     }
 
     // Add search filter if provided
@@ -306,6 +330,17 @@ router.patch("/:id", authenticate, authorize("ADMIN"), async (req: Request, res:
       return res.status(400).json({
         success: false,
         message: "Stock cannot be negative",
+      });
+    }
+
+    // Validate status if provided
+    if (
+      updateData.status !== undefined &&
+      !["ACTIVE", "INACTIVE", "OUT_OF_STOCK"].includes(updateData.status)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be one of: ACTIVE, INACTIVE, OUT_OF_STOCK",
       });
     }
 
