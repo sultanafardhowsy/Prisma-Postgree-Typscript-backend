@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import prisma from "@/lib/prisma";
-import { authenticate, authorize } from "@/middlewares/auth";
+import prisma from "../lib/prisma";
+import { authenticate, authorize } from "../middlewares/auth";
 
 // Initialize Express router for product-related routes
 const router = Router();
@@ -109,7 +109,7 @@ router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Res
  * - search: Search by title or description (optional)
  * - page: Page number for pagination (default: 1)
  * - limit: Items per page (default: 10)
- * - sortBy: Sort field - 'price', 'createdAt' (default: createdAt)
+ * - sortBy: Sort field - 'title', 'price', 'stock', 'createdAt', 'updatedAt' (default: createdAt)
  * - order: Sort order - 'asc' or 'desc' (default: desc)
  * - includeDeleted: Include soft-deleted products (default: false)
  * 
@@ -122,8 +122,21 @@ router.get("/", async (req: Request, res: Response) => {
     const search = req.query.search as string | undefined;
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, parseInt(req.query.limit as string) || 10); // Max 100 items per page
-    const sortBy = (req.query.sortBy as string) || "createdAt";
+
+    // Only allow sorting by known safe fields
+    const sortableFields = ["title", "price", "stock", "createdAt", "updatedAt"];
+    const requestedSortBy = (req.query.sortBy as string) || "createdAt";
+    const sortBy = sortableFields.includes(requestedSortBy)
+      ? requestedSortBy
+      : "createdAt";
+
     const order = (req.query.order as "asc" | "desc") || "desc";
+    if (order !== "asc" && order !== "desc") {
+      return res.status(400).json({
+        success: false,
+        message: "Order must be either 'asc' or 'desc'",
+      });
+    }
     const includeDeleted = req.query.includeDeleted === "true";
 
     // Calculate pagination skip value
@@ -210,7 +223,9 @@ router.get("/:id", async (req: Request, res: Response) => {
       include: {
         category: true, // Include category information
         cartItems: {
-          include: { user: true }, // Include user info for cart items
+          include: {
+            user: { select: { id: true, name: true, email: true } },
+          },
         },
         orderItems: {
           include: { order: true }, // Include order info for order items

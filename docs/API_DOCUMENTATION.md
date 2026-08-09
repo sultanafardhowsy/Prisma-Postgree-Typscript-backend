@@ -350,7 +350,7 @@ Retrieves products with filtering, sorting, and pagination.
 - `search` (string): Search by title or description
 - `page` (number): Page number (default: 1)
 - `limit` (number): Items per page (default: 10, max: 100)
-- `sortBy` (string): Sort field - 'price', 'createdAt' (default: createdAt)
+- `sortBy` (string): Sort field - 'title', 'price', 'stock', 'createdAt', 'updatedAt' (default: createdAt)
 - `order` (string): 'asc' or 'desc' (default: desc)
 - `includeDeleted` (boolean): Include deleted products
 
@@ -968,7 +968,7 @@ Lets authenticated users rate and comment on products. Each user may leave at mo
 **Query Parameters:**
 - `productId` (string): Filter by product
 - `userId` (string): Filter by reviewer
-- `status` (string): Filter by status (PENDING, APPROVED, REJECTED)
+- `status` (string): Filter by status (PENDING, APPROVED, REJECTED - defaults to APPROVED)
 - `page` (number): Page number (default: 1)
 - `limit` (number): Items per page (default: 10)
 - `includeDeleted` (boolean): Include soft-deleted reviews (default: false)

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import prisma from "@/lib/prisma";
-import { JwtPayload, verifyToken } from "@/lib/jwt";
+import prisma from "../lib/prisma";
+import { JwtPayload, verifyToken } from "../lib/jwt";
 
 /**
  * ============================================

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import prisma from "@/lib/prisma";
-import { authenticate } from "@/middlewares/auth";
+import prisma from "../lib/prisma";
+import { authenticate } from "../middlewares/auth";
 
 // Initialize Express router for review-related routes
 const router = Router();
@@ -136,7 +136,7 @@ router.post("/", authenticate, async (req: Request, res: Response) => {
  * Query Parameters:
  * - productId: Filter by product (optional)
  * - userId: Filter by reviewer (optional)
- * - status: Filter by review status (PENDING, APPROVED, REJECTED)
+ * - status: Filter by review status (PENDING, APPROVED, REJECTED - defaults to APPROVED)
  * - page: Page number (default: 1)
  * - limit: Items per page (default: 10)
  * - includeDeleted: Include soft-deleted reviews (default: false)
@@ -156,11 +156,12 @@ router.get("/", async (req: Request, res: Response) => {
 
     const whereCondition: any = {
       isDeleted: includeDeleted ? undefined : false,
+      // Public list only shows approved reviews unless an explicit status is requested
+      status: status ? status.toUpperCase() : "APPROVED",
     };
 
     if (productId) whereCondition.productId = productId;
     if (userId) whereCondition.userId = userId;
-    if (status) whereCondition.status = status.toUpperCase();
 
     const reviews = await prisma.review.findMany({
       where: whereCondition,

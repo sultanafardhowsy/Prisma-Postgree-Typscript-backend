@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import prisma from "@/lib/prisma";
-import { signToken } from "@/lib/jwt";
-import { authenticate } from "@/middlewares/auth";
+import prisma from "../lib/prisma";
+import { signToken } from "../lib/jwt";
+import { authenticate } from "../middlewares/auth";
 
 // Initialize Express router for authentication routes
 const router = Router();

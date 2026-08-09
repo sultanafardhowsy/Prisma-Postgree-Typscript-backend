@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import prisma from "@/lib/prisma";
-import { authenticate, authorize, authorizeSelfOrAdmin } from "@/middlewares/auth";
+import prisma from "../lib/prisma";
+import { authenticate, authorize, authorizeSelfOrAdmin } from "../middlewares/auth";
 
 // Initialize Express router for order-related routes
 const router = Router();

@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import app from "@/app";
+import app from "./app";
 
 // Load environment variables FIRST before anything else
 dotenv.config();

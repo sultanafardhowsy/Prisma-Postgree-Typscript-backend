@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import prisma from "@/lib/prisma";
-import { authenticate, authorize, authorizeSelfOrAdmin } from "@/middlewares/auth";
+import prisma from "../lib/prisma";
+import { authenticate, authorize, authorizeSelfOrAdmin } from "../middlewares/auth";
 
 // Initialize Express router for user-related routes
 const router = Router();
