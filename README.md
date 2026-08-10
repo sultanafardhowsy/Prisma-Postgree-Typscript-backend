@@ -86,7 +86,33 @@ Browse/edit data visually any time with:
 npx prisma studio
 ```
 
-### 4. Run the dev server
+### 4. (Optional) Seed demo data
+
+Populates the database with an admin, 3 customers, 5 categories, 15 products,
+reviews, orders, and cart items:
+
+```bash
+npm run prisma:seed
+```
+
+> The seed is **non-destructive**: existing records are never deleted. Users,
+> categories, and reviews are upserted by their unique fields; products are only
+> created when a title is missing; orders/cart items are only seeded when the
+> table is empty.
+
+#### Demo credentials (development only)
+
+| Role       | Email             | Password      |
+| ---------- | ----------------- | ------------- |
+| `ADMIN`    | `admin@example.com` | `password123` |
+| `CUSTOMER` | `john@example.com`  | `password123` |
+| `CUSTOMER` | `jane@example.com`  | `password123` |
+| `CUSTOMER` | `alice@example.com` | `password123` |
+
+These credentials are for local development/demo only. Never use them in
+production.
+
+### 5. Run the dev server
 
 ```bash
 npm run dev
@@ -94,7 +120,7 @@ npm run dev
 
 The API is now available at `http://localhost:5000/api/v1`.
 
-### 5. Build for production
+### 6. Build for production
 
 ```bash
 npm run build
