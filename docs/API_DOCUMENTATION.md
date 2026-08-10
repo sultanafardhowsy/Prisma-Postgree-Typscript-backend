@@ -11,6 +11,7 @@ http://localhost:5000/api/v1
 **Production (live deployment):**
 https://prisma-postgree-typscript-backend.onrender.com/api/v1
 ---
+Frontend-livelink: https://storefront-steel-phi.vercel.app/
 
 ## Authentication & Authorization
 
