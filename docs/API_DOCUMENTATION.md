@@ -3,10 +3,13 @@
 This is a comprehensive REST API for an e-commerce platform built with Express.js, TypeScript, and Prisma ORM. The API manages authentication, users, products, categories, shopping carts, orders, and reviews.
 
 ## Base URL
+
+**Local development:**
 ```
 http://localhost:5000/api/v1
 ```
-
+**Production (live deployment):**
+https://prisma-postgree-typscript-backend.onrender.com/api/v1
 ---
 
 ## Authentication & Authorization
